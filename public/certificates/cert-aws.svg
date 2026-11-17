@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c0d12"/>
+      <stop offset="50%" stop-color="#14151e"/>
+      <stop offset="100%" stop-color="#08080c"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff2a2a"/>
+      <stop offset="50%" stop-color="#e02424"/>
+      <stop offset="100%" stop-color="#990000"/>
+    </linearGradient>
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff2a2a" stop-opacity="0.8"/>
+      <stop offset="30%" stop-color="#331114" stop-opacity="0.5"/>
+      <stop offset="70%" stop-color="#ff2a2a" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#1a080a" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd700"/>
+      <stop offset="50%" stop-color="#ffaa00"/>
+      <stop offset="100%" stop-color="#cc8800"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#ff2a2a" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ff2a2a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <rect width="1200" height="800" fill="url(#glow)"/>
+
+  <!-- Guilloche / Grid lines -->
+  <g stroke="#ffffff" stroke-opacity="0.03" stroke-width="1">
+    <line x1="60" y1="60" x2="1140" y2="740"/>
+    <line x1="60" y1="740" x2="1140" y2="60"/>
+    <circle cx="600" cy="400" r="280"/>
+    <circle cx="600" cy="400" r="320"/>
+    <circle cx="600" cy="400" r="360"/>
+  </g>
+
+  <!-- Outer Borders -->
+  <rect x="40" y="40" width="1120" height="720" rx="16" fill="none" stroke="url(#borderGrad)" stroke-width="2"/>
+  <rect x="52" y="52" width="1096" height="696" rx="12" fill="none" stroke="#ff2a2a" stroke-opacity="0.25" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- Corner Ornaments -->
+  <g stroke="#ff2a2a" stroke-width="2" fill="none">
+    <path d="M 40 80 L 80 40 M 40 95 L 95 40 M 40 110 L 110 40"/>
+    <path d="M 1160 80 L 1120 40 M 1160 95 L 1105 40 M 1160 110 L 1090 40"/>
+    <path d="M 40 720 L 80 760 M 40 705 L 95 760 M 40 690 L 110 760"/>
+    <path d="M 1160 720 L 1120 760 M 1160 705 L 1105 760 M 1160 690 L 1090 760"/>
+  </g>
+
+  <!-- Header Badge -->
+  <g transform="translate(600, 130)">
+    <rect x="-160" y="-20" width="320" height="40" rx="20" fill="#1e1014" stroke="#ff2a2a" stroke-width="1.5"/>
+    <text text-anchor="middle" y="6" fill="#ff2a2a" font-family="'Courier New', monospace" font-size="13" font-weight="bold" letter-spacing="4">OFFICIAL CERTIFICATION</text>
+  </g>
+
+  <!-- Subtitle -->
+  <text x="600" y="215" text-anchor="middle" fill="#8e8e9e" font-family="'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" letter-spacing="6">THIS IS PROUDLY PRESENTED TO</text>
+
+  <!-- Recipient Name -->
+  <text x="600" y="280" text-anchor="middle" fill="#ffffff" font-family="'Georgia', serif" font-size="44" font-weight="normal" letter-spacing="2">Abhishek Kumar</text>
+  <line x1="380" y1="310" x2="820" y2="310" stroke="#ff2a2a" stroke-width="2"/>
+
+  <!-- Fulfillment Text -->
+  <text x="600" y="355" text-anchor="middle" fill="#a0a0b2" font-family="'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="400" letter-spacing="1">FOR SUCCESSFULLY DEMONSTRATING PROFESSIONAL EXCELLENCE IN</text>
+
+  <!-- Certificate Title -->
+  <text x="600" y="425" text-anchor="middle" fill="#ffffff" font-family="'Helvetica Neue', Arial, sans-serif" font-size="34" font-weight="900" letter-spacing="2">AWS CERTIFIED SOLUTIONS ARCHITECT</text>
+  <text x="600" y="465" text-anchor="middle" fill="#ff2a2a" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" font-weight="bold" letter-spacing="4">ASSOCIATE LEVEL (SAA-C03)</text>
+
+  <!-- Issuing Authority -->
+  <text x="600" y="525" text-anchor="middle" fill="#c0c0d0" font-family="'Helvetica Neue', Arial, sans-serif" font-size="16" font-weight="600" letter-spacing="3">AMAZON WEB SERVICES</text>
+
+  <!-- Seal / Badge in bottom center -->
+  <g transform="translate(600, 630)">
+    <circle r="46" fill="#180e12" stroke="url(#redGrad)" stroke-width="3"/>
+    <circle r="38" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="3 3"/>
+    <text text-anchor="middle" y="-6" fill="#ffd700" font-family="'Helvetica Neue', sans-serif" font-size="10" font-weight="bold" letter-spacing="2">VALIDATED</text>
+    <text text-anchor="middle" y="12" fill="#ffffff" font-family="'Helvetica Neue', sans-serif" font-size="11" font-weight="900" letter-spacing="1">AWS</text>
+    <text text-anchor="middle" y="24" fill="#ff2a2a" font-family="'Courier New', monospace" font-size="8">★ 2025 ★</text>
+  </g>
+
+  <!-- Left: Issue Date & Credential ID -->
+  <g transform="translate(140, 635)">
+    <text x="0" y="0" fill="#78788a" font-family="'Courier New', monospace" font-size="11" letter-spacing="2">ISSUE DATE</text>
+    <text x="0" y="20" fill="#ffffff" font-family="'Helvetica Neue', sans-serif" font-size="14" font-weight="bold">AUGUST 2025</text>
+    <text x="0" y="45" fill="#78788a" font-family="'Courier New', monospace" font-size="10" letter-spacing="1">CREDENTIAL ID: AWS-SAA-83920184</text>
+  </g>
+
+  <!-- Right: Verification Status & Signature -->
+  <g transform="translate(860, 635)">
+    <text x="200" y="0" text-anchor="end" fill="#78788a" font-family="'Courier New', monospace" font-size="11" letter-spacing="2">AUTHENTICITY</text>
+    <text x="200" y="20" text-anchor="end" fill="#22c55e" font-family="'Helvetica Neue', sans-serif" font-size="13" font-weight="bold">✓ CRYPTOGRAPHICALLY VERIFIED</text>
+    <text x="200" y="45" text-anchor="end" fill="#78788a" font-family="'Courier New', monospace" font-size="10" letter-spacing="1">ISSUER: AMAZON WEB SERVICES INC.</text>
+  </g>
+</svg>

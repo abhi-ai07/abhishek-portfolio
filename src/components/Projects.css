@@ -1,0 +1,325 @@
+.flex-carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: contain;
+  outline: none;
+}
+
+.flex-carousel[data-hover="open"] {
+  cursor: zoom-in;
+}
+
+.flex-carousel[data-hover="close"] {
+  cursor: zoom-out;
+}
+
+.flex-carousel[data-dragging] {
+  cursor: grabbing;
+}
+
+.flex-carousel:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(255, 42, 42, 0.6);
+}
+
+.flex-carousel__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(
+    50% + var(--flex-carousel-half) * var(--flex-carousel-lift, 1) + 22px
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  pointer-events: none;
+  text-align: center;
+  animation: flex-carousel-reveal 900ms ease both;
+}
+
+.flex-carousel__title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  animation: flex-carousel-title 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.flex-carousel__subtitle {
+  font-weight: 400;
+  color: #a3a3a3;
+  opacity: 0.85;
+}
+
+.flex-carousel__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #ffffff;
+  opacity: 0.85;
+  transition: opacity 400ms ease;
+}
+
+.flex-carousel__count[data-hidden] {
+  opacity: 0;
+}
+
+.flex-carousel__digits {
+  display: inline-flex;
+}
+
+.flex-carousel__digit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  color: #ffffff;
+}
+
+.flex-carousel__reel {
+  display: flex;
+  flex-direction: column;
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.flex-carousel__reel span {
+  height: 1em;
+}
+
+.flex-carousel__slash {
+  color: #ff2a2a;
+  opacity: 0.9;
+}
+
+.flex-carousel__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes flex-carousel-title {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes flex-carousel-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flex-carousel__caption,
+  .flex-carousel__title {
+    animation: none;
+  }
+
+  .flex-carousel__reel {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   CINEMATIC ATMOSPHERIC BACKGROUND (Featured Projects Section)
+   ============================================================ */
+.projects-ambient-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Very subtle deep-red ambient bloom at top-right */
+.projects-glow-red-top {
+  position: absolute;
+  top: -15%;
+  right: -10%;
+  width: 75vw;
+  height: 75vh;
+  max-width: 900px;
+  max-height: 800px;
+  background: radial-gradient(
+    circle at center,
+    rgba(195, 25, 25, 0.08) 0%,
+    rgba(140, 15, 15, 0.035) 40%,
+    transparent 70%
+  );
+  filter: blur(80px);
+  transform: translateZ(0);
+}
+
+/* Deep crimson / charcoal ambient glow at bottom-left */
+.projects-glow-red-bottom {
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 80vw;
+  height: 80vh;
+  max-width: 950px;
+  max-height: 850px;
+  background: radial-gradient(
+    circle at center,
+    rgba(160, 20, 20, 0.06) 0%,
+    rgba(35, 15, 18, 0.03) 45%,
+    transparent 75%
+  );
+  filter: blur(90px);
+  transform: translateZ(0);
+}
+
+/* Soft smoky charcoal core gradient */
+.projects-glow-charcoal {
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 65vw;
+  height: 65vh;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(28, 28, 36, 0.45) 0%,
+    rgba(14, 14, 18, 0.2) 50%,
+    transparent 80%
+  );
+  filter: blur(70px);
+  transform: translateZ(0);
+}
+
+/* Fine grain / film noise texture */
+.projects-film-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 140px 140px;
+}
+
+/* ============================================================
+   FEATURED PROJECTS CAROUSEL CONTAINER (Outer Rounded Box)
+   ============================================================ */
+#flex-carousel-container {
+  background-image: url("/projects/projects-carousel-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(160, 45, 50, 0.2);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
+  transition:
+    border-color 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#flex-carousel-container:hover {
+  border-color: rgba(190, 50, 55, 0.32);
+  box-shadow:
+    0 30px 60px -12px rgba(0, 0, 0, 0.85),
+    0 0 30px -10px rgba(160, 45, 50, 0.08);
+}
+
+/* ============================================================
+   PROJECT MODAL STYLES
+   ============================================================ */
+#project-modal {
+  transition:
+    opacity 380ms cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 380ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#project-modal-card {
+  transition:
+    transform 440ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 360ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+/* MOBILE-ONLY PROJECT CAROUSEL REFINEMENTS */
+@media (max-width: 640px) {
+  #flex-carousel-container {
+    min-height: 560px;
+  }
+
+  .flex-carousel__caption {
+    top: calc(
+      50% + var(--flex-carousel-half) * var(--flex-carousel-lift, 1) + 46px
+    );
+    gap: 5px;
+    padding: 0 14px;
+  }
+
+  .flex-carousel__title {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .flex-carousel__subtitle {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .flex-carousel__count {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 380px) {
+  #flex-carousel-container {
+    min-height: 540px;
+  }
+
+  .flex-carousel__caption {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .flex-carousel__title {
+    font-size: 12px;
+  }
+
+  .flex-carousel__subtitle {
+    font-size: 11px;
+  }
+}

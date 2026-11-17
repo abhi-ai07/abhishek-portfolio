@@ -1,0 +1,84 @@
+#experience {
+  position: relative;
+  width: 100%;
+  background-color: #070709;
+  color: #ffffff;
+  overflow: visible;
+  font-family: "Plus Jakarta Sans", Inter, system-ui, sans-serif;
+}
+
+#exp-horizontal-stage {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+.exp-panel {
+  will-change: transform, opacity;
+}
+
+.exp-date-bg {
+  will-change: transform;
+}
+
+.exp-ticker {
+  will-change: transform;
+}
+
+@keyframes expLivingFlow {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.exp-living-flow {
+  animation: expLivingFlow 4.5s ease-in-out infinite;
+}
+
+.exp-jump-btn:focus-visible {
+  outline: 2px solid #ff2a2a;
+  outline-offset: 3px;
+}
+
+.exp-chapter-image {
+  width: min(100%, 28rem);
+  max-height: 11rem;
+  object-fit: cover;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #experience {
+    height: auto !important;
+  }
+
+  #exp-sticky-viewport {
+    position: relative !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #exp-horizontal-stage {
+    flex-direction: column !important;
+    width: 100% !important;
+    transform: none !important;
+  }
+
+  .exp-panel {
+    width: 100% !important;
+    padding-top: 5rem !important;
+    padding-bottom: 5rem !important;
+  }
+
+  .exp-living-flow {
+    animation: none !important;
+  }
+
+  .exp-date-bg,
+  .exp-ticker {
+    transform: none !important;
+  }
+}
