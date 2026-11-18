@@ -8,6 +8,23 @@ import { getResume } from "../lib/queries";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Vite resolves these asset URLs at build time, so the frames also work
+// after deployment (unlike hard-coded /src/... URLs).
+const HERO_FRAMES = Object.entries(
+  import.meta.glob("../assets/hero-video/ezgif-frame-*.jpg", {
+    eager: true,
+    query: "?url",
+    import: "default",
+  }),
+)
+  .sort(([a], [b]) => {
+    const frameA = Number(a.match(/ezgif-frame-(\\d+)\\.jpg$/)?.[1] ?? 0);
+    const frameB = Number(b.match(/ezgif-frame-(\\d+)\\.jpg$/)?.[1] ?? 0);
+    return frameA - frameB;
+  })
+  .map(([, url]) => url);
+
+
 // Easy-to-edit portfolio statistics
 const HERO_STATS = [
   { value: "05+", label: "Projects" },
@@ -68,15 +85,14 @@ const Hero = () => {
 
   // 1. PRELOAD 240 FRAMES
   useEffect(() => {
-    const frameCount = 240;
+    const frameCount = HERO_FRAMES.length;
     let loadedCount = 0;
     const images = new Array(frameCount);
 
     for (let i = 1; i <= frameCount; i++) {
-      const num = String(i).padStart(3, "0");
       const img = new Image();
 
-      img.src = `/src/assets/hero-video/ezgif-frame-${num}.jpg`;
+      img.src = HERO_FRAMES[i - 1] || "";
 
       img.onload = () => {
         loadedCount++;
