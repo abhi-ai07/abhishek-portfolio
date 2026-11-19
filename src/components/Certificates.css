@@ -59,9 +59,17 @@
 .certificates-stage {
   perspective-origin: center center;
   transform-style: preserve-3d;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-x: contain;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.cert-view-btn {
+  pointer-events: auto;
+  touch-action: manipulation;
+  cursor: pointer;
 }
 
 .certificates-wheel {

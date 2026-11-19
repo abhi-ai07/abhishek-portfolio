@@ -60,7 +60,7 @@ function logSanityError(entity, error) {
 }
 
 export async function getCertificates() {
-  const cached = getCached("certificates");
+  const cached = getCached("certificates_v2");
   if (cached) return cached;
 
   try {
@@ -74,13 +74,15 @@ export async function getCertificates() {
         credentialUrl,
         certificateImage,
         certificatePdf,
+        "pdfUrl": certificatePdf.asset->url,
+        "imageUrl": certificateImage.asset->url,
         description,
         skills,
         order,
         published
       }
     `);
-    if (data) setCached("certificates", data);
+    if (data) setCached("certificates_v2", data);
     return data;
   } catch (error) {
     logSanityError("certificates", error);

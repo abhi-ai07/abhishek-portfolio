@@ -6,6 +6,85 @@ import "./Certificates.css";
 // Neutral fallback certificate image for genuine Sanity credentials that do not specify a thumbnail
 const DEFAULT_CERTIFICATE_IMAGE = "/certificates/default-cert.svg";
 
+// Fallback published certificates (matching Sanity CMS dataset when under CORS/offline restrictions)
+const DEFAULT_CERTIFICATES = [
+  {
+    id: "b4e9a316-0f25-4364-b77f-576d8605423b",
+    title: "Artificial Intelligence Fundamentals",
+    issuer: "IBM SkillBuild",
+    issueDate: "2026-11-10",
+    credentialId: null,
+    credentialUrl: null,
+    image: "https://cdn.sanity.io/images/og5nj822/production/c95094b06963cfa3acff362df17ed606c661fd0b-1080x836.jpg",
+    imageUrl: "https://cdn.sanity.io/images/og5nj822/production/c95094b06963cfa3acff362df17ed606c661fd0b-1080x836.jpg",
+    pdfUrl: null,
+    description: "Successfully completed the Artificial Intelligence Fundamentals course by IBM SkillsBuild, gaining foundational knowledge of artificial intelligence concepts, applications, and key AI technologies.",
+    skills: ["Artificial Intelligence", "AI Fundamentals", "Machine Learning Concepts"],
+    order: 1,
+    published: true,
+  },
+  {
+    id: "0339c033-dd11-4c63-a301-852bc0079df9",
+    title: "Graphic Design Assessment",
+    issuer: "LearnTube.ai",
+    issueDate: "2026-11-10",
+    credentialId: "DJA-B-1-3276334-0",
+    credentialUrl: null,
+    image: "https://cdn.sanity.io/images/og5nj822/production/b9d0630ac193d3e426a82a8a92924142438258c7-1080x764.jpg",
+    imageUrl: "https://cdn.sanity.io/images/og5nj822/production/b9d0630ac193d3e426a82a8a92924142438258c7-1080x764.jpg",
+    pdfUrl: null,
+    description: "Successfully completed the Graphic Design Assessment offered by LearnTube.ai, demonstrating foundational knowledge and practical understanding of graphic design concepts and visual communication.",
+    skills: ["Graphic Design", "Visual Communication", "UI Design"],
+    order: 2,
+    published: true,
+  },
+  {
+    id: "d6f3e9ee-6ca8-458e-9476-08d41c05667d",
+    title: "Web Developer Intern",
+    issuer: "Codec Technologies",
+    issueDate: "2026-11-15",
+    credentialId: "CORPORATE6759d549ce59e1733940553",
+    credentialUrl: "https://codectechnologies.in/verification/",
+    image: "https://cdn.sanity.io/images/og5nj822/production/8b50226efb6dfe040d2ff8a87ce42cf732c1c8ea-1080x655.jpg",
+    imageUrl: "https://cdn.sanity.io/images/og5nj822/production/8b50226efb6dfe040d2ff8a87ce42cf732c1c8ea-1080x655.jpg",
+    pdfUrl: null,
+    description: "Successfully completed a one-month Web Developer Internship at Codec Technologies Pvt. Ltd. under the AICTE & ICAC approved Industrial Training and Internship Program.\n\nGained practical experience in web development, frontend technologies, website development, and building responsive web interfaces. Strengthened technical skills through hands-on learning and practical implementation.\n\n**Organization:** Codec Technologies Pvt. Ltd.\n**Role:** Web Developer Intern\n**Duration:** 15 October 2026 – 15 November 2026",
+    skills: ["Web Development", "Frontend", "React", "Responsive Design"],
+    order: 3,
+    published: true,
+  },
+  {
+    id: "7a5dc653-2eb6-4a33-acda-5426b8c78bfd",
+    title: "SQL Course",
+    issuer: "Tech Minds Academy",
+    issueDate: "2026-11-15",
+    credentialId: "SQL-4ZCTK1-1794748761569",
+    credentialUrl: null,
+    image: "https://cdn.sanity.io/images/og5nj822/production/4f8f4283dcd0c407f8eafcf31ac78a1b0f11d5f1-1037x733.jpg",
+    imageUrl: "https://cdn.sanity.io/images/og5nj822/production/4f8f4283dcd0c407f8eafcf31ac78a1b0f11d5f1-1037x733.jpg",
+    pdfUrl: null,
+    description: "Successfully completed the Complete SQL Course from TechMinds Academy, gaining knowledge of database management and SQL fundamentals.\n\nDeveloped practical understanding of SQL queries, database operations, data retrieval, filtering, sorting, and managing relational databases.\n\n**Organization:** TechMinds Academy\n**Course:** Complete SQL Course\n**Issue Date:** 15 November 2026\n**Certificate ID:** SQL-4ZCTK1-179478761569",
+    skills: ["SQL", "Database Management", "Relational Databases", "Data Querying"],
+    order: 4,
+    published: true,
+  },
+  {
+    id: "9d5ad57d-57c3-4c06-ac1a-362ff2a7ed9a",
+    title: "Python For Data Analysis",
+    issuer: "Tech Minds Academy",
+    issueDate: "2026-11-15",
+    credentialId: "PY-4ZCTK1-1794749326501",
+    credentialUrl: null,
+    image: "https://cdn.sanity.io/images/og5nj822/production/b58376730fb18feb9d734cd10ebea810a44b90e1-1080x770.jpg",
+    imageUrl: "https://cdn.sanity.io/images/og5nj822/production/b58376730fb18feb9d734cd10ebea810a44b90e1-1080x770.jpg",
+    pdfUrl: null,
+    description: "Successfully completed the Python for Data Analysis course from TechMinds Academy, developing foundational knowledge of Python programming for data analysis.\n\nGained an understanding of data handling, data manipulation, data processing, and using Python to work with datasets and extract meaningful insights.\n\n**Organization:** TechMinds Academy\n**Course:** Python for Data Analysis\n**Issue Date:** 15 November 2026\n**Certificate ID:** PY-4ZCTK1-1794749326501",
+    skills: ["Python", "Data Analysis", "Data Processing", "Datasets"],
+    order: 5,
+    published: true,
+  },
+];
+
 // Mathematical & 3D Drum Constants from ECHO Reference
 const CARD_RATIO = 1.45;
 const STEP = 40; // degrees between cards on the drum
@@ -115,12 +194,24 @@ const CertificatePreviewModal = ({ cert, onClose }) => {
         <div className="space-y-6 text-sm text-neutral-300">
           {/* Certificate Image Preview */}
           {cert.image && (
-            <div className="w-full h-56 sm:h-72 md:h-80 rounded-2xl overflow-hidden border border-[rgba(160,45,50,0.25)] bg-[#14141e] shadow-inner relative group">
+            <div className="w-full h-56 sm:h-72 md:h-80 rounded-2xl overflow-hidden border border-[rgba(160,45,50,0.25)] bg-[#14141e] shadow-inner relative group flex items-center justify-center">
               <img
                 src={cert.image}
                 alt={cert.title}
                 className="w-full h-full object-contain p-2 select-none"
               />
+              {cert.imageUrl && (
+                <a
+                  href={cert.imageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-black/80 hover:bg-black text-[10px] font-mono font-bold tracking-wider text-neutral-200 hover:text-white border border-white/20 transition-all opacity-90 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1.5 cursor-pointer shadow-md backdrop-blur-sm"
+                  title="Open full-resolution certificate image in new tab"
+                >
+                  <span>🔍</span>
+                  <span>Full Image ↗</span>
+                </a>
+              )}
             </div>
           )}
 
@@ -162,9 +253,9 @@ const CertificatePreviewModal = ({ cert, onClose }) => {
 
           {/* Description */}
           {cert.description && (
-            <p className="text-neutral-300 leading-relaxed font-normal text-sm sm:text-base text-center max-w-xl mx-auto">
+            <div className="text-neutral-300 leading-relaxed font-normal text-sm sm:text-base text-center max-w-xl mx-auto whitespace-pre-line">
               {cert.description}
-            </p>
+            </div>
           )}
 
           {/* Skills / Technologies */}
@@ -186,17 +277,29 @@ const CertificatePreviewModal = ({ cert, onClose }) => {
             </div>
           )}
 
-          {/* External Verification Link (Rendered ONLY if credentialUrl exists!) */}
-          {cert.credentialUrl && (
-            <div className="pt-2 flex justify-center items-center">
-              <a
-                href={cert.credentialUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#ff2a2a] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#e02424] transition-all shadow-lg shadow-[#ff2a2a]/25 hover:scale-105 active:scale-95 cursor-pointer font-mono"
-              >
-                View Credential ↗
-              </a>
+          {/* External Links: Credential verification and PDF view */}
+          {(cert.credentialUrl || cert.pdfUrl) && (
+            <div className="pt-2 flex flex-wrap justify-center items-center gap-3">
+              {cert.pdfUrl && (
+                <a
+                  href={cert.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 hover:border-[#ff2a2a]/60 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer font-mono"
+                >
+                  <span>📄</span> View Certificate PDF ↗
+                </a>
+              )}
+              {cert.credentialUrl && (
+                <a
+                  href={cert.credentialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#ff2a2a] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#e02424] transition-all shadow-lg shadow-[#ff2a2a]/25 hover:scale-105 active:scale-95 cursor-pointer font-mono"
+                >
+                  View Credential ↗
+                </a>
+              )}
             </div>
           )}
         </div>
@@ -240,6 +343,11 @@ const Certificates = () => {
   const isPointerDownRef = useRef(false);
   const dragStartYRef = useRef(0);
   const dragStartXRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const touchStartTimeRef = useRef(0);
+  const touchDirectionRef = useRef(null);
+  const lastTouchXRef = useRef(0);
+  const lastTouchYRef = useRef(0);
 
   // Handle responsive media changes
   useEffect(() => {
@@ -258,7 +366,7 @@ const Certificates = () => {
         if (!isMounted) return;
         if (Array.isArray(docs) && docs.length > 0) {
           const mapped = docs.map((doc, idx) => {
-            let imgSrc = DEFAULT_CERTIFICATE_IMAGE;
+            let imgSrc = doc.imageUrl || DEFAULT_CERTIFICATE_IMAGE;
             if (doc.certificateImage) {
               try {
                 const built = urlFor(doc.certificateImage)
@@ -280,6 +388,8 @@ const Certificates = () => {
               credentialId: doc.credentialId,
               credentialUrl: doc.credentialUrl,
               image: imgSrc,
+              imageUrl: doc.imageUrl || imgSrc,
+              pdfUrl: doc.pdfUrl || null,
               description: doc.description,
               skills: Array.isArray(doc.skills) ? doc.skills : [],
               order: typeof doc.order === "number" ? doc.order : idx + 1,
@@ -292,14 +402,14 @@ const Certificates = () => {
           setCertificates(mapped);
           setError(null);
         } else {
-          setCertificates([]);
+          setCertificates(DEFAULT_CERTIFICATES);
         }
       })
       .catch((err) => {
         if (!isMounted) return;
-        console.warn("Could not load certificates from Sanity:", err);
-        setError("Could not load certificates from Sanity CMS.");
-        setCertificates([]);
+        console.warn("Could not load certificates from Sanity (using fallback):", err);
+        setCertificates(DEFAULT_CERTIFICATES);
+        setError(null);
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -425,47 +535,137 @@ const Certificates = () => {
     };
     stageEl.addEventListener("wheel", onWheel, { passive: false });
 
-    // Pointer Drag Events (mouse + touch)
+    // Pointer Drag Events (mouse + mobile touch gestures)
     const onPointerDown = (e) => {
+      if (e.button !== undefined && e.button > 0) return;
+      if (e.target.closest("button") || e.target.closest("a")) return;
+
       isPointerDownRef.current = true;
+      isDraggingRef.current = false;
+      touchDirectionRef.current = null;
+      touchStartTimeRef.current = performance.now();
       dragStartYRef.current = e.clientY;
       dragStartXRef.current = e.clientX;
+      lastTouchXRef.current = e.clientX;
+      lastTouchYRef.current = e.clientY;
       dragDeltaRef.current = 0;
-      try {
-        stageEl.setPointerCapture(e.pointerId);
-      } catch {
-        // Ignore pointer capture exceptions on unsupported devices
+
+      // Only capture pointer for mouse to avoid mobile WebKit/Android touch cancellation bugs
+      if (e.pointerType === "mouse") {
+        try {
+          stageEl.setPointerCapture(e.pointerId);
+        } catch {
+          // Ignore
+        }
       }
     };
 
     const onPointerMove = (e) => {
       if (!isPointerDownRef.current) return;
-      const diffY = dragStartYRef.current - e.clientY;
-      const diffX = dragStartXRef.current - e.clientX;
-      const diff = Math.abs(diffY) >= Math.abs(diffX) ? diffY : diffX;
-      dragDeltaRef.current += Math.abs(diff);
-      steerTo(targetRef.current + diff / DRAG_UNITS);
-      dragStartYRef.current = e.clientY;
-      dragStartXRef.current = e.clientX;
+
+      // Desktop Mouse Drag interaction (retains existing behavior)
+      if (e.pointerType === "mouse") {
+        const diffY = dragStartYRef.current - e.clientY;
+        const diffX = dragStartXRef.current - e.clientX;
+        const diff = Math.abs(diffY) >= Math.abs(diffX) ? diffY : diffX;
+        dragDeltaRef.current += Math.abs(diff);
+        if (dragDeltaRef.current > 6) {
+          isDraggingRef.current = true;
+        }
+        steerTo(targetRef.current + diff / DRAG_UNITS);
+        dragStartYRef.current = e.clientY;
+        dragStartXRef.current = e.clientX;
+        return;
+      }
+
+      // Mobile Touch Drag & Swipe interaction
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+      const totalDx = dragStartXRef.current - clientX;
+      const totalDy = dragStartYRef.current - clientY;
+      const stepDx = lastTouchXRef.current - clientX;
+      const dist = Math.hypot(totalDx, totalDy);
+      dragDeltaRef.current = dist;
+
+      if (!touchDirectionRef.current && dist > 8) {
+        if (Math.abs(totalDx) >= Math.abs(totalDy)) {
+          touchDirectionRef.current = "horizontal";
+          isDraggingRef.current = true;
+        } else {
+          touchDirectionRef.current = "vertical";
+        }
+      }
+
+      if (touchDirectionRef.current === "horizontal") {
+        isDraggingRef.current = true;
+        const mobileDragFactor = 220; // Silky responsive swipe feel on mobile
+        steerTo(targetRef.current + stepDx / mobileDragFactor);
+        lastTouchXRef.current = clientX;
+        lastTouchYRef.current = clientY;
+      }
     };
 
     const onPointerUp = (e) => {
       if (!isPointerDownRef.current) return;
       isPointerDownRef.current = false;
-      try {
-        stageEl.releasePointerCapture(e.pointerId);
-      } catch {
-        // Ignore pointer capture exceptions on unsupported devices
+
+      // Desktop Mouse Release
+      if (e.pointerType === "mouse") {
+        try {
+          stageEl.releasePointerCapture(e.pointerId);
+        } catch {
+          // Ignore
+        }
+        steerTo(clamp(Math.round(targetRef.current), 0, lastIndex + 1));
+        setTimeout(() => {
+          isDraggingRef.current = false;
+        }, 50);
+        return;
       }
-      if (targetRef.current > 0.4) {
-        steerTo(Math.round(targetRef.current));
+
+      // Mobile Touch Release & Flick Gesture detection
+      const now = performance.now();
+      const elapsed = Math.max(1, now - touchStartTimeRef.current);
+      const totalDx = dragStartXRef.current - (e.clientX || lastTouchXRef.current);
+      const velocityX = totalDx / elapsed;
+
+      if (touchDirectionRef.current === "horizontal" || isDraggingRef.current) {
+        // Quick flick (>0.22 px/ms) or drag distance past 30px advances card in swipe direction
+        if (Math.abs(velocityX) > 0.22 || Math.abs(totalDx) > 30) {
+          if (totalDx > 0) {
+            // Swiped left -> advance forward
+            steerTo(Math.min(lastIndex + 1, Math.floor(targetRef.current + 0.15) + 1));
+          } else {
+            // Swiped right -> go backward
+            steerTo(Math.max(0, Math.ceil(targetRef.current - 0.15) - 1));
+          }
+        } else {
+          // Snap cleanly to nearest card
+          steerTo(clamp(Math.round(targetRef.current), 0, lastIndex + 1));
+        }
+      } else {
+        steerTo(clamp(Math.round(targetRef.current), 0, lastIndex + 1));
       }
+
+      setTimeout(() => {
+        isDraggingRef.current = false;
+        touchDirectionRef.current = null;
+      }, 50);
+    };
+
+    const onPointerCancel = () => {
+      isPointerDownRef.current = false;
+      steerTo(clamp(Math.round(targetRef.current), 0, lastIndex + 1));
+      setTimeout(() => {
+        isDraggingRef.current = false;
+        touchDirectionRef.current = null;
+      }, 50);
     };
 
     stageEl.addEventListener("pointerdown", onPointerDown);
     stageEl.addEventListener("pointermove", onPointerMove);
     stageEl.addEventListener("pointerup", onPointerUp);
-    stageEl.addEventListener("pointercancel", onPointerUp);
+    stageEl.addEventListener("pointercancel", onPointerCancel);
 
     // Keyboard Arrow Navigation
     const onKeyDown = (e) => {
@@ -480,7 +680,7 @@ const Certificates = () => {
     stageEl.addEventListener("keydown", onKeyDown);
 
     // On-demand rAF Animation Engine
-    let isIntersecting = false;
+    let isIntersecting = true;
 
     const draw = () => {
       if (!isRunning) return;
@@ -546,7 +746,7 @@ const Certificates = () => {
 
       setIsRingView(t < 0.5);
 
-      if (!isSettled && isIntersecting) {
+      if (!isSettled && (isIntersecting || isPointerDownRef.current)) {
         animFrameRef.current = requestAnimationFrame(draw);
       } else {
         animFrameRef.current = 0;
@@ -554,7 +754,7 @@ const Certificates = () => {
     };
 
     const requestDraw = () => {
-      if (!animFrameRef.current && isRunning && isIntersecting) {
+      if (!animFrameRef.current && isRunning) {
         animFrameRef.current = requestAnimationFrame(draw);
       }
     };
@@ -591,7 +791,7 @@ const Certificates = () => {
       stageEl.removeEventListener("pointerdown", onPointerDown);
       stageEl.removeEventListener("pointermove", onPointerMove);
       stageEl.removeEventListener("pointerup", onPointerUp);
-      stageEl.removeEventListener("pointercancel", onPointerUp);
+      stageEl.removeEventListener("pointercancel", onPointerCancel);
       stageEl.removeEventListener("keydown", onKeyDown);
       clearTimeout(settlingTimerRef.current);
     };
@@ -600,7 +800,7 @@ const Certificates = () => {
   // Card click handler
   const handleCardClick = (index, cert) => {
     // Ignore click if it was a drag operation
-    if (dragDeltaRef.current > 8) return;
+    if (isDraggingRef.current || dragDeltaRef.current > 10) return;
 
     if (!isRingView && activeRef.current === index) {
       setSelectedCert(cert);
@@ -704,9 +904,18 @@ const Certificates = () => {
                         <span className="text-[11px] md:text-xs font-mono tracking-wider text-white drop-shadow font-bold truncate max-w-[65%]">
                           {cert.title}
                         </span>
-                        <span className="bg-[#ff2a2a] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow flex items-center gap-1 group-hover:scale-105 transition-transform font-mono shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isDraggingRef.current) return;
+                            setSelectedCert(cert);
+                          }}
+                          className="cert-view-btn bg-[#ff2a2a] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow flex items-center gap-1 hover:bg-[#e02424] hover:scale-105 active:scale-95 transition-all font-mono shrink-0 cursor-pointer"
+                          aria-label={`View details for ${cert.title}`}
+                        >
                           View ↗
-                        </span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -789,10 +998,14 @@ const Certificates = () => {
             {isMobile && (
               <div className="absolute top-5 right-5 z-20 px-3 py-1 rounded-full bg-black/80 border border-white/10 text-white font-mono text-[11px] font-bold tracking-wider">
                 <span className="text-[#ff2a2a]">
-                  {String(activeIndex + 1).padStart(2, "0")}
+                  {isRingView ? "RING" : String(activeIndex + 1).padStart(2, "0")}
                 </span>
-                <span className="text-neutral-500"> / </span>
-                <span>{String(count).padStart(2, "0")}</span>
+                {!isRingView && (
+                  <>
+                    <span className="text-neutral-500"> / </span>
+                    <span>{String(count).padStart(2, "0")}</span>
+                  </>
+                )}
               </div>
             )}
 
@@ -803,7 +1016,7 @@ const Certificates = () => {
                 <button
                   type="button"
                   onClick={handlePrev}
-                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#121218]/90 border border-white/10 text-white flex items-center justify-center hover:border-[#ff2a2a] hover:text-[#ff2a2a] transition-all cursor-pointer backdrop-blur-md active:scale-95"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#121218]/90 border border-white/10 text-white flex items-center justify-center hover:border-[#ff2a2a] hover:text-[#ff2a2a] transition-all cursor-pointer backdrop-blur-md active:scale-95 touch-manipulation"
                   aria-label="Previous certificate"
                   title="Previous certificate"
                 >
@@ -812,7 +1025,7 @@ const Certificates = () => {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#121218]/90 border border-white/10 text-white flex items-center justify-center hover:border-[#ff2a2a] hover:text-[#ff2a2a] transition-all cursor-pointer backdrop-blur-md active:scale-95"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#121218]/90 border border-white/10 text-white flex items-center justify-center hover:border-[#ff2a2a] hover:text-[#ff2a2a] transition-all cursor-pointer backdrop-blur-md active:scale-95 touch-manipulation"
                   aria-label="Next certificate"
                   title="Next certificate"
                 >
