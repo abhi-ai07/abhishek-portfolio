@@ -180,8 +180,12 @@ const About = () => {
    *    - Smooth, continuous 3D camera travel and parallax across all three stages (p: 0.22 -> 1.0)
    *    - Reverses smoothly when scrolling up
    */
+  const lastProgressRef = useRef(-1);
+
   const applyFrame = useCallback((progress) => {
     const p = clamp(progress);
+    if (Math.abs(p - lastProgressRef.current) < 0.0003) return;
+    lastProgressRef.current = p;
 
     const { startW, startH, endW, endH, isMobile: isMob } = calcDimensions();
 
@@ -346,21 +350,26 @@ const About = () => {
         },
       });
 
+      let resizeRaf = 0;
       const handleResize = () => {
-        const { endW, endH } = calcDimensions();
-        if (mediaContentRef.current) {
-          mediaContentRef.current.style.width = `${endW.toFixed(1)}px`;
-          mediaContentRef.current.style.height = `${endH.toFixed(1)}px`;
-        }
-        ScrollTrigger.refresh();
-        const target = Math.min(Math.max(trigger.progress, 0), 1);
-        applyFrame(target);
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(() => {
+          const { endW, endH } = calcDimensions();
+          if (mediaContentRef.current) {
+            mediaContentRef.current.style.width = `${endW.toFixed(1)}px`;
+            mediaContentRef.current.style.height = `${endH.toFixed(1)}px`;
+          }
+          ScrollTrigger.refresh();
+          const target = Math.min(Math.max(trigger.progress, 0), 1);
+          applyFrame(target);
+        });
       };
 
       window.addEventListener("resize", handleResize, { passive: true });
       window.addEventListener("orientationchange", handleResize);
 
       return () => {
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
         window.removeEventListener("resize", handleResize);
         window.removeEventListener("orientationchange", handleResize);
         trigger.kill();

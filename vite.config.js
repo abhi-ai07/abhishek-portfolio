@@ -14,4 +14,21 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('three')) return 'vendor-three';
+            if (id.includes('ogl')) return 'vendor-ogl';
+            if (id.includes('gsap') || id.includes('@gsap')) return 'vendor-gsap';
+            if (id.includes('@sanity')) return 'vendor-sanity';
+            if (id.includes('react') || id.includes('react-dom')) return 'vendor-react';
+          }
+        },
+      },
+    },
+  },
 })

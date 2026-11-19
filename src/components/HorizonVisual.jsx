@@ -30,6 +30,9 @@ const HorizonVisual = forwardRef(({ isMobile = false, progress = 0 }, ref) => {
     isInitialized: false,
     targetCamera: { x: 0, y: 18, z: 105 },
     currentCamera: { x: 0, y: 18, z: 105 },
+    isIntersecting: false,
+    isAnimating: false,
+    startAnimation: null,
   });
 
   // Imperative handle so About.jsx can update scroll progress & opacity without React re-renders
@@ -38,10 +41,22 @@ const HorizonVisual = forwardRef(({ isMobile = false, progress = 0 }, ref) => {
     () => ({
       setProgress: (scrollProgress, opacity = 1) => {
         progressRef.current = Math.max(0, Math.min(1, scrollProgress));
+        const isOpen = opacity > 0.001;
         if (containerRef.current) {
           containerRef.current.style.opacity = String(opacity);
-          containerRef.current.style.visibility =
-            opacity > 0.001 ? "visible" : "hidden";
+          containerRef.current.style.visibility = isOpen ? "visible" : "hidden";
+        }
+
+        const refs = threeRefs.current;
+        if (isOpen && refs.isIntersecting && !refs.isAnimating && refs.isInitialized) {
+          refs.isAnimating = true;
+          refs.startAnimation?.();
+        } else if (!isOpen && refs.isAnimating) {
+          refs.isAnimating = false;
+          if (refs.animationId) {
+            cancelAnimationFrame(refs.animationId);
+            refs.animationId = null;
+          }
         }
       },
     }),
@@ -418,6 +433,10 @@ const HorizonVisual = forwardRef(({ isMobile = false, progress = 0 }, ref) => {
 
     // 9. Continuous Animation Loop reacting smoothly to scroll progress across all 3 stages
     const animate = () => {
+      if (!refs.isAnimating || !refs.isIntersecting) {
+        refs.animationId = null;
+        return;
+      }
       refs.animationId = requestAnimationFrame(animate);
       const time = Date.now() * 0.001;
       const p = progressRef.current;
@@ -481,9 +500,28 @@ const HorizonVisual = forwardRef(({ isMobile = false, progress = 0 }, ref) => {
       refs.renderer.render(refs.scene, refs.camera);
     };
 
-    animate();
+    refs.startAnimation = () => {
+      if (!refs.animationId && refs.isAnimating && refs.isIntersecting) {
+        refs.animationId = requestAnimationFrame(animate);
+      }
+    };
 
-    // 10. ResizeObserver to dynamically update aspect ratio without distortion
+    // 10. IntersectionObserver to dynamically pause Three.js when off-screen
+    const intersectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        refs.isIntersecting = entry.isIntersecting;
+        if (refs.isIntersecting && refs.isAnimating) {
+          refs.startAnimation?.();
+        } else if (!refs.isIntersecting && refs.animationId) {
+          cancelAnimationFrame(refs.animationId);
+          refs.animationId = null;
+        }
+      },
+      { threshold: 0.05 }
+    );
+    intersectionObserver.observe(container);
+
+    // 11. ResizeObserver to dynamically update aspect ratio without distortion
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const w = Math.round(entry.contentRect.width);
@@ -498,6 +536,7 @@ const HorizonVisual = forwardRef(({ isMobile = false, progress = 0 }, ref) => {
     resizeObserver.observe(container);
 
     return () => {
+      intersectionObserver.disconnect();
       resizeObserver.disconnect();
       if (refs.animationId) {
         cancelAnimationFrame(refs.animationId);

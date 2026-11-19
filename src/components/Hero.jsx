@@ -79,78 +79,56 @@ const Hero = () => {
     };
   }, []);
 
-  // Image Sequence
+  // Image Sequence and Progressive Loading
   const imagesRef = useRef([]);
   const currentFrameRef = useRef({ index: 0 });
+  const isMobileRef = useRef(
+    typeof window !== "undefined" ? window.innerWidth < 768 : false,
+  );
 
-  // 1. PRELOAD 240 FRAMES
-  useEffect(() => {
-    const frameCount = HERO_FRAMES.length;
-    let loadedCount = 0;
-    const images = new Array(frameCount);
-
-    for (let i = 1; i <= frameCount; i++) {
-      const img = new Image();
-
-      img.src = HERO_FRAMES[i - 1] || "";
-
-      img.onload = () => {
-        loadedCount++;
-
-        setLoadingProgress(Math.floor((loadedCount / frameCount) * 100));
-
-        if (loadedCount === frameCount) {
-          setIsLoaded(true);
-        }
-      };
-
-      img.onerror = () => {
-        loadedCount++;
-
-        if (loadedCount === frameCount) {
-          setIsLoaded(true);
-        }
-      };
-
-      images[i - 1] = img;
-    }
-
-    imagesRef.current = images;
-
-    // Preload overlay image
-    const overlayImg = new Image();
-
-    overlayImg.onload = () => {
-      heroOverlayObj.current = overlayImg;
-    };
-
-    revealMaskCanvasRef.current = document.createElement("canvas");
-  }, []);
-
-  // 2. CANVAS FRAME RENDERING
-  // Detects mobile once and caches; updated on resize
-  const isMobileRef = useRef(window.innerWidth < 768);
-
+  // 1. CANVAS FRAME RENDERING
   const renderFrame = useCallback((index) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const frameCount = HERO_FRAMES.length;
+    let targetIndex = isMobileRef.current
+      ? index % 2 === 1
+        ? index - 1
+        : index
+      : index;
+    targetIndex = Math.max(0, Math.min(frameCount - 1, targetIndex));
+
+    let img = imagesRef.current[targetIndex];
+
+    // Fallback: If target frame is still loading, find nearest available loaded frame
+    if (!img || !img.complete) {
+      for (let offset = 1; offset < frameCount; offset++) {
+        const prev = targetIndex - offset;
+        if (prev >= 0 && imagesRef.current[prev]?.complete) {
+          img = imagesRef.current[prev];
+          break;
+        }
+        const next = targetIndex + offset;
+        if (next < frameCount && imagesRef.current[next]?.complete) {
+          img = imagesRef.current[next];
+          break;
+        }
+      }
+    }
+
+    if (!img || !img.complete) return;
+
     const context = canvas.getContext("2d", {
       alpha: false,
     });
-
-    const img = imagesRef.current[index];
-
-    if (!img || !img.complete) return;
+    if (!context) return;
 
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
-    context.clearRect(0, 0, canvasWidth, canvasHeight);
-
     if (isMobileRef.current) {
       // MOBILE: Cover-style crop — no black bars
-      // Pick the larger scale so the image fully covers the canvas
       const scaleX = canvasWidth / img.width;
       const scaleY = canvasHeight / img.height;
       const scale = Math.max(scaleX, scaleY);
@@ -158,20 +136,146 @@ const Hero = () => {
       const drawWidth = img.width * scale;
       const drawHeight = img.height * scale;
 
-      // Center both axes so the subject stays visible
       const x = (canvasWidth - drawWidth) / 2;
       const y = (canvasHeight - drawHeight) / 2;
 
       context.drawImage(img, x, y, drawWidth, drawHeight);
     } else {
-      // DESKTOP: Original width-fit behavior (unchanged)
+      // DESKTOP: Original width-fit behavior
       const scale = canvasWidth / img.width;
       const x = 0;
       const y = canvasHeight / 2 - (img.height / 2) * scale;
 
+      context.clearRect(0, 0, canvasWidth, canvasHeight);
       context.drawImage(img, x, y, img.width * scale, img.height * scale);
     }
   }, []);
+
+  // 2. PROGRESSIVE & ESSENTIAL ASSETS PRELOADER
+  // Loads only critical initial frames to unlock the website in <1s,
+  // then streams remaining frames smoothly in background batches.
+  useEffect(() => {
+    const frameCount = HERO_FRAMES.length;
+    const isMobile = window.innerWidth < 768;
+    isMobileRef.current = isMobile;
+
+    const images = new Array(frameCount);
+    imagesRef.current = images;
+
+    const CRITICAL_COUNT = isMobile ? 6 : 10;
+    let criticalLoaded = 0;
+    let isCancelled = false;
+
+    // Preload overlay image
+    const overlayImg = new Image();
+    overlayImg.onload = () => {
+      heroOverlayObj.current = overlayImg;
+    };
+    overlayImg.src = HERO_FRAMES[frameCount - 1] || "";
+    revealMaskCanvasRef.current = document.createElement("canvas");
+
+    const loadFrame = (index, isHighPriority = false) => {
+      if (images[index]) return images[index];
+
+      const img = new Image();
+      if (isHighPriority) {
+        img.fetchPriority = "high";
+      }
+      img.src = HERO_FRAMES[index] || "";
+
+      img.onload = () => {
+        if (img.decode) {
+          img.decode().catch(() => {});
+        }
+      };
+
+      images[index] = img;
+      return img;
+    };
+
+    // Smooth, snappy counter animation (never gets stuck)
+    let progressVal = 0;
+    let targetProgress = 15;
+    let animationFrameId;
+
+    const updateCounter = () => {
+      if (isCancelled) return;
+      if (progressVal < targetProgress) {
+        const step = Math.max(1, Math.ceil((targetProgress - progressVal) * 0.22));
+        progressVal = Math.min(targetProgress, progressVal + step);
+        setLoadingProgress(progressVal);
+      }
+      if (progressVal >= 100) {
+        setIsLoaded(true);
+        return;
+      }
+      animationFrameId = requestAnimationFrame(updateCounter);
+    };
+
+    animationFrameId = requestAnimationFrame(updateCounter);
+
+    // Initial critical batch
+    for (let i = 0; i < CRITICAL_COUNT; i++) {
+      const idx = isMobile ? i * 2 : i;
+      if (idx >= frameCount) break;
+
+      const img = loadFrame(idx, true);
+      const onCritDone = () => {
+        criticalLoaded++;
+        targetProgress = Math.min(100, Math.floor((criticalLoaded / CRITICAL_COUNT) * 100));
+        if (criticalLoaded === 1) {
+          renderFrame(0);
+        }
+        if (criticalLoaded >= CRITICAL_COUNT) {
+          targetProgress = 100;
+        }
+      };
+
+      if (img.complete) {
+        onCritDone();
+      } else {
+        img.onload = onCritDone;
+        img.onerror = onCritDone;
+      }
+    }
+
+    // Safety timeout: Guarantees loading NEVER gets stuck on slow/offline connections
+    const safetyTimer = setTimeout(() => {
+      targetProgress = 100;
+    }, 900);
+
+    // Progressive background stream for remaining frames
+    let bgIndex = isMobile ? CRITICAL_COUNT * 2 : CRITICAL_COUNT;
+    const loadNextBatch = () => {
+      if (isCancelled) return;
+      if (bgIndex >= frameCount) return;
+
+      const batchSize = isMobile ? 4 : 8;
+      const step = isMobile ? 2 : 1;
+
+      for (let b = 0; b < batchSize && bgIndex < frameCount; b++) {
+        loadFrame(bgIndex, false);
+        bgIndex += step;
+      }
+
+      if (bgIndex < frameCount) {
+        if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+          window.requestIdleCallback(loadNextBatch, { timeout: 120 });
+        } else {
+          setTimeout(loadNextBatch, 30);
+        }
+      }
+    };
+
+    const bgTimer = setTimeout(loadNextBatch, 150);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(safetyTimer);
+      clearTimeout(bgTimer);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [renderFrame]);
 
   // 3. RESIZE HANDLER
   const handleResize = useCallback(() => {
@@ -182,32 +286,30 @@ const Hero = () => {
 
     // Cap DPR on mobile to save GPU memory while keeping clarity
     const rawDpr = window.devicePixelRatio || 1;
-    const dpr = isMobileRef.current ? Math.min(rawDpr, 2) : rawDpr;
+    const dpr = isMobileRef.current
+      ? Math.min(rawDpr, 1.5)
+      : Math.min(rawDpr, 2);
 
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
+    canvas.width = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
 
     if (revealCanvasRef.current) {
-      revealCanvasRef.current.width = window.innerWidth * dpr;
-
-      revealCanvasRef.current.height = window.innerHeight * dpr;
+      revealCanvasRef.current.width = Math.round(window.innerWidth * dpr);
+      revealCanvasRef.current.height = Math.round(window.innerHeight * dpr);
     }
 
     if (revealMaskCanvasRef.current) {
-      revealMaskCanvasRef.current.width = window.innerWidth * dpr;
-
-      revealMaskCanvasRef.current.height = window.innerHeight * dpr;
+      revealMaskCanvasRef.current.width = Math.round(window.innerWidth * dpr);
+      revealMaskCanvasRef.current.height = Math.round(window.innerHeight * dpr);
 
       const maskCtx = revealMaskCanvasRef.current.getContext("2d");
-
       if (maskCtx) {
         maskCtx.fillStyle = "black";
-
         maskCtx.fillRect(
           0,
           0,
-          window.innerWidth * dpr,
-          window.innerHeight * dpr,
+          revealMaskCanvasRef.current.width,
+          revealMaskCanvasRef.current.height,
         );
       }
     }
@@ -224,7 +326,7 @@ const Hero = () => {
 
       if (!isLoaded) return;
 
-      // PRELOADER
+      // PRELOADER: Fast and responsive panel reveal
       const preloaderTimeline = gsap.timeline({
         onComplete: () => {
           setPreloaderComplete(true);
@@ -234,9 +336,9 @@ const Hero = () => {
 
       preloaderTimeline.to(".preloader-panel", {
         yPercent: 100,
-        duration: 1.8,
-        stagger: 0.12,
-        ease: "power4.inOut",
+        duration: 0.65,
+        stagger: 0.04,
+        ease: "power3.inOut",
       });
 
       // Initial canvas render
@@ -484,10 +586,27 @@ const Hero = () => {
 
       const renderReveal = () => {
         if (
+          isMobileRef.current ||
           !revealCanvasRef.current ||
           !revealMaskCanvasRef.current ||
           !heroOverlayObj.current
         ) {
+          return;
+        }
+
+        // Only active during frames 235-240
+        if (currentFrameRef.current.index < 235) {
+          if (mouseRef.current.isActive) {
+            const ctx = revealCanvasRef.current.getContext("2d", { alpha: true });
+            const maskCtx = revealMaskCanvasRef.current.getContext("2d", { alpha: true });
+            if (ctx && maskCtx) {
+              ctx.clearRect(0, 0, revealCanvasRef.current.width, revealCanvasRef.current.height);
+              maskCtx.globalCompositeOperation = "source-over";
+              maskCtx.fillStyle = "black";
+              maskCtx.fillRect(0, 0, revealMaskCanvasRef.current.width, revealMaskCanvasRef.current.height);
+            }
+            mouseRef.current.isActive = false;
+          }
           return;
         }
 
@@ -506,22 +625,6 @@ const Hero = () => {
         const h = canvas.height;
 
         if (!ctx || !maskCtx || w === 0 || h === 0) {
-          return;
-        }
-
-        // Only active during frames 235-240
-        if (currentFrameRef.current.index < 235) {
-          if (mouseRef.current.isActive) {
-            ctx.clearRect(0, 0, w, h);
-
-            maskCtx.globalCompositeOperation = "source-over";
-
-            maskCtx.fillStyle = "black";
-            maskCtx.fillRect(0, 0, w, h);
-
-            mouseRef.current.isActive = false;
-          }
-
           return;
         }
 
@@ -685,7 +788,7 @@ const Hero = () => {
         {/* TOP LAYER IMAGE */}
         <img
           ref={topLayerRef}
-          src="/src/assets/hero-video/ezgif-frame-240.jpg"
+          src={HERO_FRAMES[HERO_FRAMES.length - 1] || ""}
           className="absolute inset-0 h-full w-full object-cover origin-center pointer-events-none z-[2] opacity-0"
           alt="Top Layer Cutout"
         />

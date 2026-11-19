@@ -9,6 +9,17 @@ import Footer from "./components/Footer";
 
 function App() {
   useLayoutEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const target = document.querySelector(hash);
+      if (target) {
+        requestAnimationFrame(() => {
+          target.scrollIntoView({ behavior: "instant" });
+        });
+        return;
+      }
+    }
+
     const scrollToHero = () => {
       window.scrollTo({
         top: 0,
@@ -23,8 +34,6 @@ function App() {
     // Reset again after browser layout updates
     const firstFrame = requestAnimationFrame(() => {
       scrollToHero();
-
-      requestAnimationFrame(scrollToHero);
     });
 
     // Handle browser page restoration

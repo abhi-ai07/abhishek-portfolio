@@ -134,7 +134,7 @@ const photo = (id: string) => `https://images.unsplash.com/${id}?w=1200&q=80&aut
 
 export const DEFAULT_ITEMS: FlexCarouselItem[] = [
   {
-    src: '/projects/cafe-website.png',
+    src: '/projects/cafe-website.jpg',
     alt: 'Cafe Website',
     title: 'Cafe Website',
     subtitle: 'Editorial Coffee House Experience',
@@ -146,7 +146,7 @@ export const DEFAULT_ITEMS: FlexCarouselItem[] = [
     link: 'https://mochaandmiso.web.app/'
   },
   {
-    src: '/projects/design-studio.png',
+    src: '/projects/design-studio.jpg',
     alt: 'Design Studio',
     title: 'Design Studio',
     subtitle: 'Creative Agency & Brand Identity',
@@ -158,7 +158,7 @@ export const DEFAULT_ITEMS: FlexCarouselItem[] = [
     link: 'https://echo-design-studio-ex.vercel.app/'
   },
   {
-    src: '/projects/photographer-portfolio.png',
+    src: '/projects/photographer-portfolio.jpg',
     alt: 'Photographer Portfolio',
     title: 'Photographer Portfolio',
     subtitle: 'Editorial & Analog Photography',
@@ -170,7 +170,7 @@ export const DEFAULT_ITEMS: FlexCarouselItem[] = [
     link: 'https://julianvance.vercel.app/'
   },
   {
-    src: '/projects/portfolio-design.png',
+    src: '/projects/portfolio-design.jpg',
     alt: 'Portfolio Design',
     title: 'Portfolio Design',
     subtitle: 'Minimalist Creative Developer Portfolio',
@@ -182,7 +182,7 @@ export const DEFAULT_ITEMS: FlexCarouselItem[] = [
     link: 'https://echooo.web.app/'
   },
   {
-    src: '/projects/portfolio-website.png',
+    src: '/projects/portfolio-website.jpg',
     alt: 'Portfolio Website',
     title: 'Portfolio Website',
     subtitle: 'Personal Developer & Designer Portfolio',
@@ -194,7 +194,7 @@ export const DEFAULT_ITEMS: FlexCarouselItem[] = [
     link: 'https://jishnumondal.vercel.app/'
   },
   {
-    src: '/projects/sen-cruzo.png',
+    src: '/projects/sen-cruzo.jpg',
     alt: 'Sen Cruzo',
     title: 'Sen Cruzo',
     subtitle: 'Luxury Architectural & Client Portfolio',

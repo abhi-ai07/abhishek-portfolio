@@ -166,9 +166,14 @@ const Experience = () => {
       : DEFAULT_EXPERIENCE_INTRO.jumpBUILDINGProgress;
 
   // Frame application (controlled smoothly by ScrollTrigger scrub)
+  const lastProgressRef = useRef(-1);
+
   const applyFrame = useCallback(
     (progress, maxTranslate) => {
       const p = Math.min(Math.max(progress, 0), 1);
+      if (Math.abs(p - lastProgressRef.current) < 0.0003) return;
+      lastProgressRef.current = p;
+
       const curX = -p * maxTranslate;
 
       // 1. Move Horizontal Camera / Stage
@@ -342,11 +347,15 @@ const Experience = () => {
       triggerRef.current = trigger;
       applyFrame(trigger.progress || 0, maxTranslate);
 
+      let resizeRaf = 0;
       const handleResize = () => {
-        const previousProgress = trigger.progress || 0;
-        updateTrackHeight();
-        ScrollTrigger.refresh();
-        applyFrame(previousProgress, maxTranslate);
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(() => {
+          const previousProgress = trigger.progress || 0;
+          updateTrackHeight();
+          ScrollTrigger.refresh();
+          applyFrame(previousProgress, maxTranslate);
+        });
       };
 
       const resizeObserver = new ResizeObserver(handleResize);
@@ -356,6 +365,7 @@ const Experience = () => {
       window.addEventListener("orientationchange", handleResize);
 
       return () => {
+        if (resizeRaf) cancelAnimationFrame(resizeRaf);
         resizeObserver.disconnect();
         window.removeEventListener("resize", handleResize);
         window.removeEventListener("orientationchange", handleResize);

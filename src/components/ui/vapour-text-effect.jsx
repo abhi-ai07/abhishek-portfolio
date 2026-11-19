@@ -90,6 +90,7 @@ const VapourTextEffect = forwardRef(
     const assembleProgressRef = useRef(0);
     const dissolveProgressRef = useRef(0);
     const boundsRef = useRef({ width: 0, height: 0, pad: 0 });
+    const lastRenderStateRef = useRef({ state: "", a: -1, d: -1 });
 
     // Normalize text into segments: [{ text, color }]
     const segments = useMemo(() => {
@@ -111,8 +112,6 @@ const VapourTextEffect = forwardRef(
       (assembleProg, dissolveProg = 0) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        if (!ctx) return;
 
         const aProg = Math.max(0, Math.min(1, assembleProg));
         const dProg = Math.max(0, Math.min(1, dissolveProg));
@@ -120,11 +119,16 @@ const VapourTextEffect = forwardRef(
         assembleProgressRef.current = aProg;
         dissolveProgressRef.current = dProg;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const last = lastRenderStateRef.current;
 
         // State 1: Completely unrevealed
         if (aProg <= 0.02) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          if (last.state === "unrevealed") return;
+          last.state = "unrevealed";
+          last.a = aProg;
+          last.d = dProg;
+          const ctx = canvas.getContext("2d");
+          if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
           if (textRef.current) {
             textRef.current.style.opacity = "0";
             textRef.current.style.visibility = "hidden";
@@ -135,7 +139,12 @@ const VapourTextEffect = forwardRef(
         // State 2: Completely assembled and solid (aProg >= 0.98, dProg <= 0.02)
         // Clear canvas completely so only ONE single DOM text layer is rendered!
         if (aProg >= 0.98 && dProg <= 0.02) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          if (last.state === "assembled") return;
+          last.state = "assembled";
+          last.a = aProg;
+          last.d = dProg;
+          const ctx = canvas.getContext("2d");
+          if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
           if (textRef.current) {
             textRef.current.style.opacity = "1";
             textRef.current.style.visibility = "visible";
@@ -145,13 +154,36 @@ const VapourTextEffect = forwardRef(
 
         // State 3: Fully dissolved
         if (dProg >= 0.98) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          if (last.state === "dissolved") return;
+          last.state = "dissolved";
+          last.a = aProg;
+          last.d = dProg;
+          const ctx = canvas.getContext("2d");
+          if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
           if (textRef.current) {
             textRef.current.style.opacity = "0";
             textRef.current.style.visibility = "hidden";
           }
           return;
         }
+
+        // Check if delta is trivial during active particle animation
+        if (
+          last.state === "animating" &&
+          Math.abs(aProg - last.a) < 0.003 &&
+          Math.abs(dProg - last.d) < 0.003
+        ) {
+          return;
+        }
+
+        last.state = "animating";
+        last.a = aProg;
+        last.d = dProg;
+
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // State 4: During particle animation (0.02 < aProg < 0.98 OR 0.02 < dProg < 0.98)
         // Ensure DOM text is 100% hidden so canvas particles and DOM text NEVER appear simultaneously!
@@ -160,7 +192,8 @@ const VapourTextEffect = forwardRef(
           textRef.current.style.visibility = "hidden";
         }
 
-        const globalDpr = Math.min(window.devicePixelRatio * 1.5 || 1, 3);
+        const isMob = window.innerWidth < 768;
+        const globalDpr = Math.min(window.devicePixelRatio || 1, isMob ? 1.5 : 2);
         const textBoundaries = textBoundariesRef.current;
         const particles = particlesRef.current;
         const len = particles.length;
@@ -293,7 +326,8 @@ const VapourTextEffect = forwardRef(
         return;
       }
 
-      const globalDpr = Math.min(window.devicePixelRatio * 1.5 || 1, 3);
+      const isMob = window.innerWidth < 768;
+      const globalDpr = Math.min(window.devicePixelRatio || 1, isMob ? 1.5 : 2);
       const computed = window.getComputedStyle(span);
       const fontSizeNum = parseInt(computed.fontSize || "50", 10) || 50;
 
@@ -394,12 +428,13 @@ const VapourTextEffect = forwardRef(
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
 
-      const baseDPR = 3;
+      const baseDPR = 2;
       const currentDPR = canvas.width / (width + pad * 2);
       const baseSampleRate = Math.max(1, Math.round(currentDPR / baseDPR));
+      const mobileFactor = isMob ? 1.5 : 1;
       const sampleRate = Math.max(
         1,
-        Math.round(baseSampleRate * (5 / Math.max(1, density))),
+        Math.round(baseSampleRate * (5 / Math.max(1, density)) * mobileFactor),
       );
 
       const particles = [];

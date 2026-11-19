@@ -185,7 +185,7 @@ const Projects = () => {
         if (!isMounted) return;
         if (Array.isArray(data) && data.length > 0) {
           const mapped = data.map((doc) => {
-            let imgSrc = "/projects/portfolio-design.png";
+            let imgSrc = "/projects/portfolio-design.jpg";
             if (doc.thumbnail) {
               try {
                 const built = urlFor(doc.thumbnail)

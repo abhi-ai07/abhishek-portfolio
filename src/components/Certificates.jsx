@@ -3,93 +3,8 @@ import { getCertificates } from "../lib/queries";
 import { urlFor } from "../lib/sanity";
 import "./Certificates.css";
 
-// High-fidelity fallback certificates matching Abhishek's Black & Red Editorial Theme
-export const DEFAULT_CERTIFICATES = [
-  {
-    id: "cert-aws-saa",
-    title: "AWS Certified Solutions Architect",
-    issuer: "Amazon Web Services",
-    issueDate: "2025-08-15",
-    credentialId: "AWS-SAA-83920184",
-    credentialUrl: "https://aws.amazon.com/verification",
-    image: "/certificates/cert-aws.svg",
-    description:
-      "Demonstrated comprehensive expertise in designing resilient, high-performance, cost-optimized, and secure cloud architectures on Amazon Web Services.",
-    skills: ["AWS", "Cloud Architecture", "EC2 / S3 / RDS", "Serverless", "IAM Security", "VPC Networking"],
-    order: 1,
-    published: true,
-  },
-  {
-    id: "cert-meta-fed",
-    title: "Meta Front-End Developer Specialization",
-    issuer: "Meta",
-    issueDate: "2025-04-10",
-    credentialId: "META-FED-994120",
-    credentialUrl: "https://www.coursera.org/verify/professional-cert/meta-frontend",
-    image: "/certificates/cert-meta.svg",
-    description:
-      "Mastery of modern client-side architecture, React 19 component lifecycle, state orchestration, responsive UI design systems, and Web performance profiling.",
-    skills: ["React", "JavaScript (ESNext)", "CSS Architecture", "UI/UX Systems", "Testing & CI/CD", "Web Performance"],
-    order: 2,
-    published: true,
-  },
-  {
-    id: "cert-gcp-ace",
-    title: "Google Cloud Associate Cloud Engineer",
-    issuer: "Google Cloud",
-    issueDate: "2024-11-20",
-    credentialId: "GCP-ACE-441890",
-    credentialUrl: "https://cloud.google.com/certification",
-    image: "/certificates/cert-gcp.svg",
-    description:
-      "Validated proficiency in deploying containerized microservices, configuring Google Kubernetes Engine (GKE), managing IAM policies, and cloud resource automation.",
-    skills: ["Google Cloud Platform", "Kubernetes (GKE)", "Docker", "Cloud Run", "Terraform", "Cloud Monitoring"],
-    order: 3,
-    published: true,
-  },
-  {
-    id: "cert-cs50x",
-    title: "CS50: Computer Science & Systems",
-    issuer: "Harvard University",
-    issueDate: "2024-06-05",
-    credentialId: "CS50X-2024-098214",
-    credentialUrl: "https://cs50.harvard.edu/certificates",
-    image: "/certificates/cert-cs50.svg",
-    description:
-      "Rigorous foundation in computer science fundamentals: algorithms, computational complexity, memory management in C, data structures, and relational databases.",
-    skills: ["C", "Algorithms", "Data Structures", "Memory Management", "Python", "SQL & Database Design"],
-    order: 4,
-    published: true,
-  },
-  {
-    id: "cert-psm-1",
-    title: "Professional Scrum Master™ I (PSM I)",
-    issuer: "Scrum.org",
-    issueDate: "2024-02-18",
-    credentialId: "PSM-I-772910",
-    credentialUrl: "https://www.scrum.org/certificates",
-    image: "/certificates/cert-scrum.svg",
-    description:
-      "Certified understanding of agile product delivery frameworks, Scrum mechanics, sprint velocity optimization, and cross-functional team leadership.",
-    skills: ["Scrum", "Agile Leadership", "Sprint Planning", "Cross-Functional Collaboration", "Product Delivery"],
-    order: 5,
-    published: true,
-  },
-  {
-    id: "cert-fullstack",
-    title: "Full-Stack Web Development Architecture",
-    issuer: "freeCodeCamp & Open Source Community",
-    issueDate: "2023-10-30",
-    credentialId: "FCC-FSW-551029",
-    credentialUrl: "https://www.freecodecamp.org/certification",
-    image: "/certificates/cert-fullstack.svg",
-    description:
-      "Comprehensive 1,800+ hour curriculum covering full-stack web applications, RESTful APIs, Node.js backend scalability, and database optimization.",
-    skills: ["Node.js", "Express", "TypeScript", "PostgreSQL", "REST APIs", "Modern Web Architecture"],
-    order: 6,
-    published: true,
-  },
-];
+// Neutral fallback certificate image for genuine Sanity credentials that do not specify a thumbnail
+const DEFAULT_CERTIFICATE_IMAGE = "/certificates/default-cert.svg";
 
 // Mathematical & 3D Drum Constants from ECHO Reference
 const CARD_RATIO = 1.45;
@@ -292,9 +207,10 @@ const CertificatePreviewModal = ({ cert, onClose }) => {
 
 // Main Certificates Component
 const Certificates = () => {
-  const [certificates, setCertificates] = useState(DEFAULT_CERTIFICATES);
+  const [certificates, setCertificates] = useState([]);
   const [selectedCert, setSelectedCert] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isRingView, setIsRingView] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -334,14 +250,13 @@ const Certificates = () => {
   // Fetch Certificates from Sanity CMS
   useEffect(() => {
     let isMounted = true;
-    setLoading(true);
 
     getCertificates()
       .then((docs) => {
         if (!isMounted) return;
         if (Array.isArray(docs) && docs.length > 0) {
           const mapped = docs.map((doc, idx) => {
-            let imgSrc = "/certificates/cert-aws.svg";
+            let imgSrc = DEFAULT_CERTIFICATE_IMAGE;
             if (doc.certificateImage) {
               try {
                 const built = urlFor(doc.certificateImage)
@@ -353,8 +268,6 @@ const Certificates = () => {
               } catch (e) {
                 console.warn("Failed to build certificate image url:", e);
               }
-            } else if (DEFAULT_CERTIFICATES[idx % DEFAULT_CERTIFICATES.length]?.image) {
-              imgSrc = DEFAULT_CERTIFICATES[idx % DEFAULT_CERTIFICATES.length].image;
             }
 
             return {
@@ -377,15 +290,14 @@ const Certificates = () => {
           setCertificates(mapped);
           setError(null);
         } else {
-          // If no documents found in Sanity, preserve high-quality default editorial fallbacks
-          setCertificates(DEFAULT_CERTIFICATES);
+          setCertificates([]);
         }
       })
       .catch((err) => {
         if (!isMounted) return;
-        console.warn("Could not load certificates from Sanity, using defaults:", err);
-        setError("Could not load latest certificates from Sanity. Displaying offline archive.");
-        setCertificates(DEFAULT_CERTIFICATES);
+        console.warn("Could not load certificates from Sanity:", err);
+        setError("Could not load certificates from Sanity CMS.");
+        setCertificates([]);
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -400,9 +312,12 @@ const Certificates = () => {
   const lastIndex = Math.max(count - 1, 0);
 
   // Steer target with boundary clamping
+  const requestDrawRef = useRef(null);
+
   const steerTo = useCallback(
     (next) => {
       targetRef.current = clamp(next, 0, lastIndex + 1);
+      requestDrawRef.current?.();
     },
     [lastIndex]
   );
@@ -514,7 +429,9 @@ const Certificates = () => {
       dragDeltaRef.current = 0;
       try {
         stageEl.setPointerCapture(e.pointerId);
-      } catch (_) {}
+      } catch {
+        // Ignore pointer capture exceptions on unsupported devices
+      }
     };
 
     const onPointerMove = (e) => {
@@ -533,7 +450,9 @@ const Certificates = () => {
       isPointerDownRef.current = false;
       try {
         stageEl.releasePointerCapture(e.pointerId);
-      } catch (_) {}
+      } catch {
+        // Ignore pointer capture exceptions on unsupported devices
+      }
       if (targetRef.current > 0.4) {
         steerTo(Math.round(targetRef.current));
       }
@@ -556,13 +475,16 @@ const Certificates = () => {
     };
     stageEl.addEventListener("keydown", onKeyDown);
 
-    // 60fps rAF Animation Engine
+    // On-demand rAF Animation Engine
+    let isIntersecting = false;
+
     const draw = () => {
       if (!isRunning) return;
-      animFrameRef.current = requestAnimationFrame(draw);
 
       const gap = targetRef.current - turnRef.current;
-      if (Math.abs(gap) < 0.0005) {
+      const isSettled = Math.abs(gap) < 0.0005 && !isPointerDownRef.current;
+
+      if (isSettled) {
         turnRef.current = targetRef.current;
       } else {
         turnRef.current += gap * (reducedMotion ? 1 : EASE_FACTOR);
@@ -617,13 +539,49 @@ const Certificates = () => {
         activeRef.current = near;
         setActiveIndex(near);
       }
+
+      setIsRingView(t < 0.5);
+
+      if (!isSettled && isIntersecting) {
+        animFrameRef.current = requestAnimationFrame(draw);
+      } else {
+        animFrameRef.current = 0;
+      }
     };
 
-    animFrameRef.current = requestAnimationFrame(draw);
+    const requestDraw = () => {
+      if (!animFrameRef.current && isRunning && isIntersecting) {
+        animFrameRef.current = requestAnimationFrame(draw);
+      }
+    };
+    requestDrawRef.current = requestDraw;
+
+    // IntersectionObserver to pause drum loop when outside viewport
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isIntersecting = entry.isIntersecting;
+        if (isIntersecting) {
+          requestDraw();
+        } else if (animFrameRef.current) {
+          cancelAnimationFrame(animFrameRef.current);
+          animFrameRef.current = 0;
+        }
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(stageEl);
+
+    // Initial render
+    draw();
 
     return () => {
       isRunning = false;
-      cancelAnimationFrame(animFrameRef.current);
+      requestDrawRef.current = null;
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = 0;
+      }
+      io.disconnect();
       ro.disconnect();
       stageEl.removeEventListener("wheel", onWheel);
       stageEl.removeEventListener("pointerdown", onPointerDown);
@@ -640,7 +598,7 @@ const Certificates = () => {
     // Ignore click if it was a drag operation
     if (dragDeltaRef.current > 8) return;
 
-    if (turnRef.current >= 0.5 && activeRef.current === index) {
+    if (!isRingView && activeRef.current === index) {
       setSelectedCert(cert);
     } else {
       steerTo(index + 1);
@@ -796,7 +754,7 @@ const Certificates = () => {
                   type="button"
                   onClick={() => steerTo(0)}
                   className={`cursor-pointer transition-all duration-200 text-[10px] md:text-[11px] tracking-wider outline-none block ml-auto ${
-                    turnRef.current < 0.5
+                    isRingView
                       ? "text-[#ff2a2a] font-bold"
                       : "text-neutral-500 hover:text-neutral-300"
                   }`}
@@ -810,7 +768,7 @@ const Certificates = () => {
                     type="button"
                     onClick={() => steerTo(i + 1)}
                     className={`cursor-pointer transition-all duration-200 text-[11px] md:text-xs tracking-wider outline-none block ml-auto ${
-                      i === activeIndex && turnRef.current >= 0.5
+                      i === activeIndex && !isRingView
                         ? "text-[#ff2a2a] font-bold scale-105 underline decoration-2 underline-offset-4 decoration-[#ff2a2a]"
                         : "text-neutral-400 hover:text-white"
                     }`}
