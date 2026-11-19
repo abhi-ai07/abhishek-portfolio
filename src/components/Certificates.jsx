@@ -216,7 +216,9 @@ const Certificates = () => {
 
   // Responsive state
   const [isMobile, setIsMobile] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 640px)").matches,
   );
 
   // Wheel interaction and DOM refs
@@ -319,7 +321,7 @@ const Certificates = () => {
       targetRef.current = clamp(next, 0, lastIndex + 1);
       requestDrawRef.current?.();
     },
-    [lastIndex]
+    [lastIndex],
   );
 
   const handlePrev = useCallback(() => {
@@ -372,7 +374,9 @@ const Certificates = () => {
     if (!stageEl || !wheelEl || count === 0) return;
 
     let isRunning = true;
-    let reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     // Apply geometric sizing
     const applyMetrics = () => {
@@ -514,7 +518,7 @@ const Certificates = () => {
             ringR,
             drumR,
             bow,
-            m
+            m,
           );
           card.style.opacity = m > 0.5 && Math.abs(d) > CULL ? "0" : "1";
           card.style.zIndex = String(Math.round(100 - Math.abs(d) * 2));
@@ -567,7 +571,7 @@ const Certificates = () => {
           animFrameRef.current = 0;
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     io.observe(stageEl);
 
@@ -637,7 +641,8 @@ const Certificates = () => {
             </h2>
           </div>
           <p className="text-xs md:text-sm uppercase font-medium leading-relaxed tracking-wider text-neutral-400 max-w-md">
-            Validated technical proficiencies across cloud architecture, modern client-side engineering, and distributed systems.
+            Validated technical proficiencies across cloud architecture, modern
+            client-side engineering, and distributed systems.
           </p>
         </div>
 
@@ -653,195 +658,180 @@ const Certificates = () => {
               position: "relative",
             }}
           >
-          {/* Stage Element (Perspective & Events) */}
-          <div
-            ref={stageRef}
-            tabIndex={0}
-            role="listbox"
-            aria-label="Certificates 3D Wheel"
-            className="certificates-stage absolute inset-0 cursor-grab outline-none focus-visible:outline-2 focus-visible:outline-[#ff2a2a] focus-visible:-outline-offset-4 active:cursor-grabbing"
-          >
-            {/* 3D Wheel Container */}
+            {/* Stage Element (Perspective & Events) */}
             <div
-              ref={wheelRef}
-              className="certificates-wheel"
+              ref={stageRef}
+              tabIndex={0}
+              role="listbox"
+              aria-label="Certificates 3D Wheel"
+              className="certificates-stage absolute inset-0 cursor-grab outline-none focus-visible:outline-2 focus-visible:outline-[#ff2a2a] focus-visible:-outline-offset-4 active:cursor-grabbing"
             >
-              {certificates.map((cert, i) => (
-                <div
-                  key={cert.id || i}
-                  ref={(el) => (cardRefs.current[i] = el)}
-                  id={`cert-wheel-card-${i}`}
-                  role="option"
-                  aria-selected={i === activeIndex ? "true" : "false"}
-                  className="certificate-card-wrapper group"
-                  onClick={() => handleCardClick(i, cert)}
-                >
-                  <div className="certificate-card-face">
-                    {/* Certificate Preview Image */}
-                    <img
-                      src={cert.image}
-                      alt={cert.title}
-                      draggable={false}
-                      loading="eager"
-                      className="w-full h-full object-cover select-none pointer-events-none"
-                    />
+              {/* 3D Wheel Container */}
+              <div ref={wheelRef} className="certificates-wheel">
+                {certificates.map((cert, i) => (
+                  <div
+                    key={cert.id || i}
+                    ref={(el) => (cardRefs.current[i] = el)}
+                    id={`cert-wheel-card-${i}`}
+                    role="option"
+                    aria-selected={i === activeIndex ? "true" : "false"}
+                    className="certificate-card-wrapper group"
+                    onClick={() => handleCardClick(i, cert)}
+                  >
+                    <div className="certificate-card-face">
+                      {/* Certificate Preview Image */}
+                      <img
+                        src={cert.image}
+                        alt={cert.title}
+                        draggable={false}
+                        loading="eager"
+                        className="w-full h-full object-cover select-none pointer-events-none"
+                      />
 
-                    {/* Gradient Overlay for Editorial Contrast */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                      {/* Gradient Overlay for Editorial Contrast */}
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
-                    {/* Top Issuer Tag */}
-                    <div className="pointer-events-none absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 border border-white/10 backdrop-blur-md">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#ff2a2a]" />
-                      <span className="text-[10px] font-mono tracking-wider text-neutral-300 font-semibold uppercase truncate max-w-[180px]">
-                        {cert.issuer}
-                      </span>
-                    </div>
+                      {/* Top Issuer Tag */}
+                      <div className="pointer-events-none absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 border border-white/10 backdrop-blur-md">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#ff2a2a]" />
+                        <span className="text-[10px] font-mono tracking-wider text-neutral-300 font-semibold uppercase truncate max-w-[180px]">
+                          {cert.issuer}
+                        </span>
+                      </div>
 
-                    {/* Bottom Info Bar */}
-                    <div className="pointer-events-none absolute left-3.5 bottom-3.5 right-3.5 flex items-center justify-between gap-2 z-10">
-                      <span className="text-[11px] md:text-xs font-mono tracking-wider text-white drop-shadow font-bold truncate max-w-[65%]">
-                        {cert.title}
-                      </span>
-                      <span className="bg-[#ff2a2a] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow flex items-center gap-1 group-hover:scale-105 transition-transform font-mono shrink-0">
-                        View ↗
-                      </span>
+                      {/* Bottom Info Bar */}
+                      <div className="pointer-events-none absolute left-3.5 bottom-3.5 right-3.5 flex items-center justify-between gap-2 z-10">
+                        <span className="text-[11px] md:text-xs font-mono tracking-wider text-white drop-shadow font-bold truncate max-w-[65%]">
+                          {cert.title}
+                        </span>
+                        <span className="bg-[#ff2a2a] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow flex items-center gap-1 group-hover:scale-105 transition-transform font-mono shrink-0">
+                          View ↗
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Center Ring Label (Visible when turn == 0) */}
-          <div
-            ref={labelRef}
-            onClick={() => steerTo(1)}
-            title="Click to enter 3D Drum"
-            className="cursor-pointer absolute inset-0 grid place-items-center tracking-tight font-black uppercase text-center select-none z-10 transition-opacity duration-300"
-          >
-            <div className="flex flex-col items-center px-4">
-              <span className="text-[10px] md:text-xs font-mono tracking-[0.3em] uppercase text-[#ff2a2a] mb-2 font-bold">
-                Portfolio Index
-              </span>
-              <span className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tight text-white/95 drop-shadow-[0_4px_30px_rgba(255,42,42,0.25)]">
-                CERTIFICATES &apos;26
-              </span>
-              <span className="text-[11px] font-mono tracking-widest text-neutral-400 mt-2 font-semibold flex items-center gap-2">
-                <span>SCROLL OR DRAG TO ROTATE</span>
-                <span className="text-[#ff2a2a]">↓</span>
-              </span>
+            {/* Center Ring Label (Visible when turn == 0) */}
+            <div
+              ref={labelRef}
+              onClick={() => steerTo(1)}
+              title="Click to enter 3D Drum"
+              className="cursor-pointer absolute inset-0 grid place-items-center tracking-tight font-black uppercase text-center select-none z-10 transition-opacity duration-300"
+            >
+              <div className="flex flex-col items-center px-4">
+                <span className="text-[10px] md:text-xs font-mono tracking-[0.3em] uppercase text-[#ff2a2a] mb-2 font-bold">
+                  Portfolio Index
+                </span>
+                <span className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tight text-white/95 drop-shadow-[0_4px_30px_rgba(255,42,42,0.25)]">
+                  CERTIFICATES &apos;26
+                </span>
+                <span className="text-[11px] font-mono tracking-widest text-neutral-400 mt-2 font-semibold flex items-center gap-2">
+                  <span>TAP HERE AND SCROLL TO ROTATE</span>
+                  <span className="text-[#ff2a2a]">↓</span>
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* Top-Left Active Certificate Title (Visible when turn >= 1) */}
-          <div
-            ref={titleRef}
-            className="pointer-events-none absolute top-6 left-6 md:top-8 md:left-8 tracking-tight font-black uppercase text-white opacity-0 select-none z-10 max-w-[55%] sm:max-w-[45%] leading-[1.05]"
-          >
-            <span className="block text-[10px] md:text-[11px] font-mono tracking-widest uppercase text-[#ff2a2a] mb-1 font-bold truncate">
-              {activeCert?.issuer}
-            </span>
-            <h3 className="text-base sm:text-xl md:text-2xl font-black uppercase tracking-tight line-clamp-2 drop-shadow">
-              {activeCert?.title}
-            </h3>
-          </div>
+            {/* Top-Left Active Certificate Title (Visible when turn >= 1) */}
+            <div
+              ref={titleRef}
+              className="pointer-events-none absolute top-6 left-6 md:top-8 md:left-8 tracking-tight font-black uppercase text-white opacity-0 select-none z-10 max-w-[55%] sm:max-w-[45%] leading-[1.05]"
+            >
+              <span className="block text-[10px] md:text-[11px] font-mono tracking-widest uppercase text-[#ff2a2a] mb-1 font-bold truncate">
+                {activeCert?.issuer}
+              </span>
+              <h3 className="text-base sm:text-xl md:text-2xl font-black uppercase tracking-tight line-clamp-2 drop-shadow">
+                {activeCert?.title}
+              </h3>
+            </div>
 
-          {/* Side Index List (Desktop & Tablet) */}
-          {!isMobile && (
-            <ol className="text-neutral-500 absolute top-8 right-6 text-right leading-[1.7] z-20 space-y-1 select-none font-mono">
-              <li className="pb-1 mb-1 border-b border-white/[0.08]">
-                <button
-                  type="button"
-                  onClick={() => steerTo(0)}
-                  className={`cursor-pointer transition-all duration-200 text-[10px] md:text-[11px] tracking-wider outline-none block ml-auto ${
-                    isRingView
-                      ? "text-[#ff2a2a] font-bold"
-                      : "text-neutral-500 hover:text-neutral-300"
-                  }`}
-                >
-                  ⟲ RING OVERVIEW
-                </button>
-              </li>
-              {certificates.map((cert, i) => (
-                <li key={cert.id || i}>
+            {/* Side Index List (Desktop & Tablet) */}
+            {!isMobile && (
+              <ol className="text-neutral-500 absolute top-8 right-6 text-right leading-[1.7] z-20 space-y-1 select-none font-mono">
+                <li className="pb-1 mb-1 border-b border-white/[0.08]">
                   <button
                     type="button"
-                    onClick={() => steerTo(i + 1)}
-                    className={`cursor-pointer transition-all duration-200 text-[11px] md:text-xs tracking-wider outline-none block ml-auto ${
-                      i === activeIndex && !isRingView
-                        ? "text-[#ff2a2a] font-bold scale-105 underline decoration-2 underline-offset-4 decoration-[#ff2a2a]"
-                        : "text-neutral-400 hover:text-white"
+                    onClick={() => steerTo(0)}
+                    className={`cursor-pointer transition-all duration-200 text-[10px] md:text-[11px] tracking-wider outline-none block ml-auto ${
+                      isRingView
+                        ? "text-[#ff2a2a] font-bold"
+                        : "text-neutral-500 hover:text-neutral-300"
                     }`}
                   >
-                    <span className="text-[#ff2a2a]/60 mr-1.5">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    {cert.title}
+                    ⟲ RING OVERVIEW
                   </button>
                 </li>
-              ))}
-            </ol>
-          )}
+                {certificates.map((cert, i) => (
+                  <li key={cert.id || i}>
+                    <button
+                      type="button"
+                      onClick={() => steerTo(i + 1)}
+                      className={`cursor-pointer transition-all duration-200 text-[11px] md:text-xs tracking-wider outline-none block ml-auto ${
+                        i === activeIndex && !isRingView
+                          ? "text-[#ff2a2a] font-bold scale-105 underline decoration-2 underline-offset-4 decoration-[#ff2a2a]"
+                          : "text-neutral-400 hover:text-white"
+                      }`}
+                    >
+                      <span className="text-[#ff2a2a]/60 mr-1.5">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      {cert.title}
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            )}
 
-          {/* Mobile Counter Badge */}
-          {isMobile && (
-            <div className="absolute top-5 right-5 z-20 px-3 py-1 rounded-full bg-black/80 border border-white/10 text-white font-mono text-[11px] font-bold tracking-wider">
-              <span className="text-[#ff2a2a]">{String(activeIndex + 1).padStart(2, "0")}</span>
-              <span className="text-neutral-500"> / </span>
-              <span>{String(count).padStart(2, "0")}</span>
-            </div>
-          )}
-
-          {/* Navigation Controls & Hint Pill (Bottom) */}
-          <div className="pointer-events-none absolute bottom-5 inset-x-5 flex items-center justify-between z-20">
-            {/* Quick Prev / Next / Ring Buttons */}
-            <div className="pointer-events-auto flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handlePrev}
-                className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#121218]/90 border border-white/10 text-white flex items-center justify-center hover:border-[#ff2a2a] hover:text-[#ff2a2a] transition-all cursor-pointer backdrop-blur-md active:scale-95"
-                aria-label="Previous certificate"
-                title="Previous certificate"
-              >
-                ←
-              </button>
-              <button
-                type="button"
-                onClick={handleNext}
-                className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#121218]/90 border border-white/10 text-white flex items-center justify-center hover:border-[#ff2a2a] hover:text-[#ff2a2a] transition-all cursor-pointer backdrop-blur-md active:scale-95"
-                aria-label="Next certificate"
-                title="Next certificate"
-              >
-                →
-              </button>
-              <button
-                type="button"
-                onClick={() => steerTo(0)}
-                className="px-2.5 h-8 md:h-9 rounded-full bg-[#121218]/90 border border-white/10 text-neutral-300 text-[10px] font-mono flex items-center gap-1 hover:border-[#ff2a2a] hover:text-[#ff2a2a] transition-all cursor-pointer backdrop-blur-md active:scale-95"
-                aria-label="Circular Ring Overview"
-                title="Circular Ring Overview"
-              >
-                <span>⟲</span>
-                <span className="hidden sm:inline">RING</span>
-              </button>
-            </div>
-
-            {/* Bottom Helper Hint Pill */}
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0d0d14]/90 border border-white/10 backdrop-blur-md text-[10px] md:text-[11px] font-mono text-neutral-400 uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ff2a2a] animate-ping" />
-              <span>Scroll or drag drum to cycle</span>
-            </div>
-
-            {/* Counter (Desktop) */}
-            {!isMobile && (
-              <div className="font-mono text-xs text-neutral-400 tracking-wider">
-                <span className="text-white font-bold">{String(activeIndex + 1).padStart(2, "0")}</span>
-                <span className="text-[#ff2a2a] mx-1">/</span>
+            {/* Mobile Counter Badge */}
+            {isMobile && (
+              <div className="absolute top-5 right-5 z-20 px-3 py-1 rounded-full bg-black/80 border border-white/10 text-white font-mono text-[11px] font-bold tracking-wider">
+                <span className="text-[#ff2a2a]">
+                  {String(activeIndex + 1).padStart(2, "0")}
+                </span>
+                <span className="text-neutral-500"> / </span>
                 <span>{String(count).padStart(2, "0")}</span>
               </div>
             )}
+
+            {/* Navigation Controls & Hint Pill (Bottom) */}
+            <div className="pointer-events-none absolute bottom-5 inset-x-5 flex items-center justify-between z-20">
+              {/* Quick Prev / Next / Ring Buttons */}
+              <div className="pointer-events-auto flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrev}
+                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#121218]/90 border border-white/10 text-white flex items-center justify-center hover:border-[#ff2a2a] hover:text-[#ff2a2a] transition-all cursor-pointer backdrop-blur-md active:scale-95"
+                  aria-label="Previous certificate"
+                  title="Previous certificate"
+                >
+                  ←
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#121218]/90 border border-white/10 text-white flex items-center justify-center hover:border-[#ff2a2a] hover:text-[#ff2a2a] transition-all cursor-pointer backdrop-blur-md active:scale-95"
+                  aria-label="Next certificate"
+                  title="Next certificate"
+                >
+                  →
+                </button>
+              </div>
+
+              {/* Counter (Desktop) */}
+              {!isMobile && (
+                <div className="font-mono text-xs text-neutral-400 tracking-wider">
+                  <span className="text-white font-bold">
+                    {String(activeIndex + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-[#ff2a2a] mx-1">/</span>
+                  <span>{String(count).padStart(2, "0")}</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
         ) : (
           !loading && (
             <div className="w-full py-24 text-center border border-white/10 rounded-3xl bg-[#09090e]/80">
@@ -852,7 +842,8 @@ const Certificates = () => {
                 No Certificates Published
               </h3>
               <p className="text-sm text-neutral-400 max-w-md mx-auto">
-                Certificates added and published in Sanity Studio will appear in this 3D wheel automatically.
+                Certificates added and published in Sanity Studio will appear in
+                this 3D wheel automatically.
               </p>
             </div>
           )
